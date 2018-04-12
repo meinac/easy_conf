@@ -1,24 +1,41 @@
+require "ostruct"
+
 module EasyConf
   class Configuration # :nodoc
-    attr_accessor :config_files, :inform_with, :white_list_keys, :black_list_keys, :environment
+    attr_accessor :decoder
+    attr_reader :lookups
 
     def initialize
-      @config_files    = []
-      @inform_with     = :log
-      @white_list_keys = []
-      @black_list_keys = []
+      @lookups = []
     end
 
-    def white_list_keys=(keys)
-      @white_list_keys = keys.map(&:to_sym)
+    def lookups=(lookups)
+      @lookups = lookups.to_a
     end
 
-    def black_list_keys=(keys)
-      @black_list_keys = keys.map(&:to_sym)
+    def register_lookup(klass)
+      register_placeholder(klass.placeholder)
+      @lookups << klass
     end
 
-    def environment
-      @environment ||= defined?(Rails) ? Rails.env : nil
+    def de_register_lookup(klass)
+      @lookups -= [klass]
     end
+
+    private
+      def register_placeholder(placeholder)
+        check_placeholder_conflict!(placeholder)
+
+        instance_variable_set("@#{placeholder}_conf", OpenStruct.new)
+
+        define_singleton_method(placeholder) do
+          instance_variable_get("@#{placeholder}_conf")
+        end
+      end
+
+      def check_placeholder_conflict!(placeholder)
+        raise LookupNameConflictError.new(placeholder) if self.class.instance_methods(:false).include?(placeholder)
+      end
+
   end
 end

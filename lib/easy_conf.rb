@@ -1,9 +1,11 @@
 require "easy_conf/version"
 require "easy_conf/app_config"
+require "easy_conf/lookup_visitor"
 require "easy_conf/configuration"
+require "easy_conf/errors/interface_error"
+require "easy_conf/errors/lookup_name_conflict_error"
 require "easy_conf/errors/config_not_found_error"
-require "easy_conf/errors/unpermitted_config_error"
-require "easy_conf/errors/config_file_not_found_error"
+require "easy_conf/lookup/abstract_lookup"
 
 module EasyConf
 
@@ -52,28 +54,38 @@ module EasyConf
       app_config.__to_hash
     end
 
+    # Registers a new lookup class to the lookup list.
+    #
+    # Example:
+    #
+    #   EasyConf.register_lookup(EasyConf::Lookup::Env)
+    def register_lookup(klass)
+      configuration.register_lookup(klass)
+    end
+
+    # De-registers the lookup class from the lookup list.
+    #
+    # Example:
+    #
+    #   EasyConf.de_register_lookup(EasyConf::Lookup::Env)
+    def de_register_lookup(klass)
+      configuration.de_register_lookup(klass)
+    end
+
     # Configures the EasyConf gem for the following keys;
     #
-    # config_files    : Required! List of configuration files to be used.
-    # inform_with     : Optional. Information method used in case of error.
-    #                   Whether sliently puts log or raises exception.
-    # white_list_keys : Optional. List of config keys to be used.
-    #                   If this configuration is set, config keys
-    #                   which are not in this list won't be
-    #                   accessible through EasyConf!
-    # black_list_keys : Optional! List of config keys to be ignored.
-    #                   If this configuration is set, config keys
-    #                   which are in this list won't be accessible
-    #                   through EasyConf!
-    # environment     : Optional. Specifies environment scope. For Rails
-    #                   applications, the value is same with Rails.
+    # lookups : Optional. An array of lookup classes. By default, EasyConf uses
+    #           ENV and YAML lookups.
+    # decoder : Optional. If you are encoding your config values before saving,
+    #           you can let EasyConf decode them automatically by setting this
+    #           with a `Proc`. This is usefull if you don't want to handle type
+    #           casting in your code.
     #
     # Example:
     #
     #   EasyConf.configure do |config|
-    #     config.config_files    = [config.yml]
-    #     config.white_list_keys = ['access_key', 'secret_key', ...]
-    #     config.black_list_keys = ['black_key', ...]
+    #     config.lookups = [EasyConf::Lookup::Env, EasyConf::Lookup::Yaml]
+    #     config.decoder = Proc.new { |value| YAML.load(value) }
     #   end
     def configure
       yield(configuration)
@@ -86,3 +98,7 @@ module EasyConf
   end
 
 end
+
+require "easy_conf/lookup/env"
+require "easy_conf/lookup/yaml"
+require "easy_conf/lookup/e_vault"

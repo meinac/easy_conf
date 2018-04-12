@@ -28,16 +28,14 @@ Or install it yourself as:
 
 #### EasyConf configuration
 
-EasyConf requires its own configuration to determine where is configuration files. For Rails applications, create a file under config directory which looks like;
+EasyConf requires its own configuration to determine the source of the configurations etc. For Rails applications, create a file under config directory which looks like;
 
 ```ruby
 require 'easy_conf'
 
 EasyConf.configure do |config|
-  config.config_files    = ["#{Rails.root}/config/config.yml"]
-  config.inform_with     = :log
-  config.white_list_keys = [:foo]
-  config.environment     = :production
+  config.lookups = [:env, :yaml, :vault]
+  config.decoder = Proc.new { |value| value.upcase }
 end
 ```
 
@@ -80,16 +78,9 @@ EasyConf.to_hash # { "foo" => "bar" }
 
 ## Configuration Keys
 
-**config_files:** *Required! List of configuration files to be used.
-If you don't configure this, EasyConf can read configurations from only environment variables.
+**lookups:** Optional, default is `[:env, :yaml]`. List of lookups to be used to fetch the configuration. The lookup is basically the source of the configuration which. EasyConf implements `ENV`, `YAML` and `VAULT` lookups by default. You can also implement your own lookup, for more information about how to implement a lookup, you may have a look at the source of builtin lookups.
 
-**inform_with:** Optional. Information method used in case of error. Whether sliently puts log or raises exception. Valid options are `:log` and `:exception`. Default is `:log`.
-
-**white_list_keys:** Optional. List of config keys to be used. If this configuration is set, config keys which are not in this list won't be accessible through EasyConf!
-
-**black_list_keys:** Optional. List of config keys to be ignored. If this configuration is set, config keys which are in this list won't be accessible through EasyConf! *Note that, black list keys overrides white list keys.*
-
-**environment:** Optional. Specifies environment scope. For Rails applications, the value is same with Rails.
+**decoder:** Optional. The idea behind of having this key is, having configuration values as Ruby objects. If you set the ENV var FOO as `"--- 1\n...\n"` and set the `decoder` option as `Proc.new { |value| YAML.load(value) }` the return value of EasyConf.app_config.FOO will be `1` as Fixnum instead of String.
 
 ## TIPS
 

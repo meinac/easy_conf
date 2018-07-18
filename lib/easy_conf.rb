@@ -102,3 +102,4 @@ end
 require "easy_conf/lookup/env"
 require "easy_conf/lookup/yaml"
 require "easy_conf/lookup/e_vault"
+require "easy_conf/lookup/zookeeper"

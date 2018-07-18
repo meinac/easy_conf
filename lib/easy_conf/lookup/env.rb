@@ -3,7 +3,7 @@
 # This lookup is registered by default, you can de-register
 # it with;
 #
-#   EasyConf.de_register(:env)
+#   EasyConf.de_register_lookup(EasyConf::Lookup::Env)
 module EasyConf
   module Lookup
     class Env < AbstractLookup

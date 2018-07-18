@@ -5,7 +5,7 @@ require "yaml"
 # This lookup is registered by default, you can de-register
 # it with;
 #
-#   EasyConf.de_register(:yaml)
+#   EasyConf.de_register_lookup(EasyConf::Lookup::Yaml)
 #
 # The lookup has two configuration keys;
 #

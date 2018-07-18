@@ -34,7 +34,7 @@ EasyConf requires its own configuration to determine the source of the configura
 require 'easy_conf'
 
 EasyConf.configure do |config|
-  config.lookups = [:env, :yaml, :vault]
+  config.lookups = [EasyConf::Lookup::Env, EasyConf::Lookup::Yaml]
   config.decoder = Proc.new { |value| value.upcase }
 end
 ```

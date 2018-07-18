@@ -5,7 +5,7 @@ require "vault"
 # This lookup is NOT registered by default, you can register
 # it with;
 #
-#   EasyConf.register(:vault)
+#   EasyConf.register_lookup(EasyConf::Lookup::EVault)
 #
 # Beside the Vault configuration which has to be done seperately,
 # the lookup has one mandatory configuration key;

@@ -4,7 +4,9 @@ EasyConf, as its name suggest, is a gem for managing application configuration e
 
 You may wonder why I've created this gem. The answer is simple; because convention matters!
 
-I saw lots of applications written buy other awesome developers and I noticed that they are managing their configurations either by using config files or environment variables or even both! As a result of this, in this applications you can see something like  `ENV['foo']` and `Rails.application.config` mixed all around the source of the application. What a mess.
+I've seen lots of applications written by other awesome developers and I noticed that they are managing their configurations either by using config files or via environment variables or even both! As a result of this, in those applications you can see something like  `ENV['foo']` and `Rails.application.config` mixed all around the source of the application. What a mess.
+
+Directly accessing the source of configuration highly couples the way you configure your application with the application logic and if you want to change the way you configure the application you will have to touch the code itself which is bad.
 
 Beside of this complexity your production environment may have some restrictions you don't have on your own development environment. For example, if you are using Heroku you can't use config files to configure your application. Because you have to untrack config files on your VCS unless you have a good reason to track them. By using EasyConf while you can configure your application with config files also you can use environment variables on your production environment and this will give you a good abstraction on configuration!
 
@@ -76,9 +78,16 @@ Or if you want to get your configurations from config files as Hash, you can jus
 EasyConf.to_hash # { "foo" => "bar" }
 ```
 
+## Available Configuration Backends
+
+- Environment variables (EasyConf::Lookup::Env)
+- Yaml files (EasyConf::Lookup::Yaml)
+- Vault (EasyConf::Lookup::EVault)
+- Zookeeper (EasyConf::Lookup::Zookeeper)
+
 ## Configuration Keys
 
-**lookups:** Optional, default is `[:env, :yaml]`. List of lookups to be used to fetch the configuration. The lookup is basically the source of the configuration which. EasyConf implements `ENV`, `YAML` and `VAULT` lookups by default. You can also implement your own lookup, for more information about how to implement a lookup, you may have a look at the source of builtin lookups.
+**lookups:** Optional, default is `[EasyConf::Lookup::Env, EasyConf::Lookup::Yaml]`. List of lookups to be used to fetch the configuration. The lookup is basically the source of the configuration which. EasyConf implements `Env`, `YamlL`, `EVault` and `Zookeeper` lookups by default. You can also implement your own lookup, for more information about how to implement a lookup, you may have a look at the source of builtin lookups.
 
 **decoder:** Optional. The idea behind of having this key is, having configuration values as Ruby objects. If you set the ENV var FOO as `"--- 1\n...\n"` and set the `decoder` option as `Proc.new { |value| YAML.load(value) }` the return value of EasyConf.app_config.FOO will be `1` as Fixnum instead of String.
 
@@ -132,7 +141,6 @@ If you think storing configuration files at S3 is not good then you can use some
 ## TODO
 
 1. Write tests
-2. Write adapter for ZooKeeper
 
 ## Contributing
 

@@ -10,7 +10,7 @@ module EasyConf
 
       class << self
         def read(key)
-          value = ENV[key.to_s]
+          value = ENV[key.to_s] || ENV[key.to_s.upcase]
           value && commit(value)
         end
       end

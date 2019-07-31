@@ -46,6 +46,8 @@ module EasyConf
           end
 
           def read_config_file(config_file)
+            raise ConfigFileMissing.new(config_file) unless File.exist?(config_file)
+
             content = YAML.load_file(config_file)
             scope ? content[scope] : content
           end

@@ -39,7 +39,7 @@ module EasyConf
 
           def read_config_files
             config_files.reduce({}) do |memo, config_file|
-              read_config_file(config_file).each { |k, v| memo[k.to_s] = v }
+              read_config_file(config_file).to_h.each { |k, v| memo[k.to_s] = v }
 
               memo
             end
